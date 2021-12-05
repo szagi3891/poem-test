@@ -1,0 +1,10 @@
+
+[tasks.start]
+command = "cargo"
+args = [ "run" ]
+
+[tasks.start-watch]
+command = "cargo"
+args = [ "watch", "--watch", "./src", "--delay", "0.5", "-x", "make start" ]
+
+
