@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
-use my_obj2::MyObj2;
+// use my_obj2::MyObj2;
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService};
 
 use poem_openapi::ApiResponse;
 
-mod my_obj2;
+// mod my_obj2;
 
 #[derive(Object, Debug, PartialEq)]
 struct A {
@@ -100,10 +100,29 @@ impl Api2 {
     }
 
     #[oai(path = "/put2", method = "post")]
-    async fn index2(&self, obj: Json<MyObj2>) -> Json<MyObj2> {
+    async fn index2(&self, obj: Json<MyObj>) -> Json<MyObj> {
         obj
     }
 }
+
+struct Api1 {}
+
+#[OpenApi]
+impl Api1 {
+    pub fn new() -> Api1 {
+        Api1 {}
+    }
+
+    #[oai(path = "/hello", method = "get")]
+    async fn create_post(
+        &self,
+        obj: Json<MyObj>,
+    ) -> CreateBlogResponse {
+
+        CreateBlogResponse::Ok(Json(444))
+    }
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -113,15 +132,24 @@ async fn main() -> Result<(), std::io::Error> {
 
     tracing_subscriber::fmt::init();
 
+    let api1 = Api1::new();
+
+    let api_service1 = OpenApiService::new(api1, "Oneof", "1.0").server("http://localhost:3000/api1");
+    let ui1 = api_service1.swagger_ui();
+    let spec1 = api_service1.spec_endpoint();
+
+
     let api2 = Api2::new();
 
     let api_service2 = OpenApiService::new(api2, "Oneof", "1.0").server("http://localhost:3000/api2");
     let ui2 = api_service2.swagger_ui();
-    // Enable the OpenAPI specification
     let spec2 = api_service2.spec_endpoint();
 
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .run(Route::new()
+            .nest("/spec1.json", spec1)
+            .nest("/api1", api_service1)
+            .nest("/ui1", ui1)
             .nest("/spec2.json", spec2)
             .nest("/api2", api_service2)
             .nest("/ui2", ui2)
