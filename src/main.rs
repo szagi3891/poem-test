@@ -113,7 +113,7 @@ impl Api1 {
         Api1 {}
     }
 
-    #[oai(path = "/hello", method = "get")]
+    #[oai(path = "/hello", method = "post")]
     async fn create_post(
         &self,
         obj: Json<MyObj>,

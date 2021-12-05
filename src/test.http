@@ -12,3 +12,15 @@ Accept: application/json
 
 GET http://127.0.0.1:3000/ui2/
 
+
+###
+
+POST http://127.0.0.1:3000/api1/hello
+Content-Type: application/json
+Accept: application/json
+
+{
+    "type": "A",
+    "v1": 0,
+    "v2": "dddsssaaaa"
+}
