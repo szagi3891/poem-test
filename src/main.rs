@@ -1,11 +1,10 @@
 use std::sync::Arc;
 
-use poem::Response;
-use poem::endpoint::make_sync;
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService};
-
 use poem_openapi::ApiResponse;
+use poem::{endpoint::Files};
+
 
 #[derive(Object, Debug, PartialEq)]
 struct A {
@@ -62,6 +61,27 @@ impl State {
     }
 }
 
+
+struct Api1 {}
+
+#[OpenApi(prefix_path = "/api1")]
+impl Api1 {
+    pub fn new() -> Api1 {
+        Api1 {}
+    }
+
+    #[oai(path = "/hello", method = "post")]
+    async fn create_post(
+        &self,
+        obj: Json<MyObj>,
+    ) -> CreateBlogResponse {
+
+        CreateBlogResponse::Ok(Json(555))
+    }
+}
+
+
+
 struct Api2 {
     state: State,
 }
@@ -74,7 +94,7 @@ impl Api2 {
     }
 }
 
-#[OpenApi]
+#[OpenApi(prefix_path = "/api2")]
 impl Api2 {
     #[oai(path = "/hello", method = "get")]
     async fn create_post(
@@ -95,62 +115,6 @@ impl Api2 {
     }
 }
 
-struct Api1 {}
-
-#[OpenApi]
-impl Api1 {
-    pub fn new() -> Api1 {
-        Api1 {}
-    }
-
-    #[oai(path = "/hello", method = "post")]
-    async fn create_post(
-        &self,
-        obj: Json<MyObj>,
-    ) -> CreateBlogResponse {
-
-        CreateBlogResponse::Ok(Json(444))
-    }
-}
-
-use serde_json::Value;
-
-fn add_base(base: impl Into<String>, spec: &String) -> String {
-    let base: String = base.into();
-
-    let mut spec_value = serde_json::from_str::<Value>(spec.as_str()).unwrap();
-
-    if let Value::Object(props) = &mut spec_value {
-        if let Some(paths_inner) = props.get_mut("paths") {
-
-            if let Value::Object(props2) = paths_inner {
-
-                let mut new_map = serde_json::Map::new();
-                let base = &base;
-
-                for (key, item) in props2.iter() {
-                    let new_name = format!("{base}{key}");
-                    new_map.insert(new_name, item.clone());
-                }
-
-                *props2 = new_map;
-
-            } else {
-                panic!("dddd1..");
-            }
-
-        } else {
-            panic!("dddd2..");
-        }
-
-    } else {
-        panic!("ddddd..");
-    }
-
-    serde_json::to_string(&spec_value).unwrap()
-}
-
-
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
     if std::env::var_os("RUST_LOG").is_none() {
@@ -160,38 +124,34 @@ async fn main() -> Result<(), std::io::Error> {
     tracing_subscriber::fmt::init();
 
     let api1 = Api1::new();
-
-    let api_service1 = OpenApiService::new(api1, "Oneof", "1.0").server("http://localhost:3000/api1");
+    let api_service1 = OpenApiService::new(api1, "Oneof", "1.0");
+    // let spec1 = api_service1.spec();
     let spec1 = api_service1.spec_endpoint();
 
-
     let api2 = Api2::new();
-
-    let api_service2 = OpenApiService::new(api2, "Oneof", "1.0").server("http://localhost:3000/api2");
+    let api_service2 = OpenApiService::new(api2, "Oneof", "1.0");
+    // let spec2 = api_service2.spec();
     let spec2 = api_service2.spec_endpoint();
-
-
-
-    let spec_endpoint = {
-        let spec = api_service1.spec();
-        let spec = add_base("/api1", &spec);
-
-        make_sync(move |_| {
-            Response::builder()
-                .content_type("application/json")
-                .body(spec.clone())
-        })
-    };
-
 
 
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .run(Route::new()
-            .nest("/spec1-correct.json", spec_endpoint)
-            .nest("/spec1.json", spec1)
-            .nest("/api1", api_service1)
-            .nest("/spec2.json", spec2)
-            .nest("/api2", api_service2)
+            .nest("/spec1.json", spec1) //spec_endpoint("/api1", &spec1))
+            .nest_no_strip("/api1", api_service1)
+            .nest("/spec2.json", spec2) //spec_endpoint("/api2", &spec2))
+            .nest_no_strip("/api2", api_service2)
+
+            .nest(
+                "/static1",
+                Files::new("./src").show_files_listing(),
+            )
+
+            .nest(
+                "/static2",
+                Files::new("./src"),
+            )
+
         )
         .await
 }
+
