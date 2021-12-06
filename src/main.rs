@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use poem::{listener::TcpListener, Route, Server};
@@ -21,6 +22,7 @@ struct A {
 #[derive(Object, Debug, PartialEq)]
 struct B {
     v3: f32,
+    list: HashMap<String, u64>,
 }
 
 #[derive(OneOf, Debug, PartialEq)]
