@@ -10,6 +10,8 @@ use poem::{
     Middleware, Request, Response,
 };
 
+use poem::{http::Method, middleware::Cors};
+
 #[derive(Object, Debug, PartialEq)]
 struct A {
     v1: i32,
@@ -177,6 +179,15 @@ impl<E: Endpoint> Endpoint for LogImpl<E> {
     }
 }
 
+fn cors() -> Cors {
+    let cors = Cors::new()
+        .allow_method(Method::GET)
+        .allow_method(Method::POST)
+        // .allow_origin("*")
+        .allow_credentials(false)
+    ;
+    cors
+}
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -200,9 +211,17 @@ async fn main() -> Result<(), std::io::Error> {
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .run(Route::new()
             .nest("/spec1.json", spec1) //spec_endpoint("/api1", &spec1))
-            .nest_no_strip("/api1", api_service1.with(Log::new("łotr jeden")))
+            .nest_no_strip("/api1", 
+                api_service1
+                    .with(Log::new("łotr jeden"))
+                    .with(cors())
+            )
             .nest("/spec2.json", spec2) //spec_endpoint("/api2", &spec2))
-            .nest_no_strip("/api2", api_service2.with(Log::new("rozkaz rozkaz")))
+            .nest_no_strip("/api2",
+                api_service2
+                .with(Log::new("rozkaz rozkaz"))
+                .with(cors())
+            )
 
             .nest(
                 "/static1",

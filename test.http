@@ -36,3 +36,16 @@ Accept: application/json
     "v1": 0,
     "v2": "dddsssaaaa"
 }
+
+###
+
+GET http://127.0.0.1:3000/api2/hello
+Content-Type: application/json
+Accept: application/json
+Origin: https://foo.example
+
+{
+    "type": "A",
+    "v1": 0,
+    "v2": "dddsssaaaa"
+}
