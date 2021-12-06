@@ -5,6 +5,10 @@ use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService};
 use poem_openapi::ApiResponse;
 use poem::{endpoint::Files};
 
+use poem::{
+    async_trait, Endpoint, EndpointExt, IntoResponse,
+    Middleware, Request, Response,
+};
 
 #[derive(Object, Debug, PartialEq)]
 struct A {
@@ -75,7 +79,8 @@ impl Api1 {
         &self,
         obj: Json<MyObj>,
     ) -> CreateBlogResponse {
-
+        // log::info!("aaaa");
+        println!("aaaaa {obj:#?}");
         CreateBlogResponse::Ok(Json(555))
     }
 }
@@ -101,8 +106,6 @@ impl Api2 {
         &self,
         obj: Json<MyObj>,
     ) -> CreateBlogResponse {
-        // CreateBlogResponse::InternalError
-
         CreateBlogResponse::Forbidden(Json(Forb {
             message: "dsadsa".into(),
             age: 4,
@@ -114,6 +117,66 @@ impl Api2 {
         obj
     }
 }
+
+
+
+struct Log {
+    label: Arc<String>,
+}
+
+impl Log {
+    pub fn new(label: impl Into<String>) -> Log {
+        Log {
+            label: Arc::new(label.into())
+        }
+    }
+}
+
+impl<E: Endpoint> Middleware<E> for Log {
+    type Output = LogImpl<E>;
+
+    fn transform(&self, ep: E) -> Self::Output {
+        LogImpl::new(ep, self.label.clone())
+    }
+}
+
+struct LogImpl<E>{
+    endpoint: E,
+    label: Arc<String>
+}
+
+impl<E> LogImpl<E> {
+    pub fn new(endpoint: E, label: Arc<String>) -> LogImpl<E> {
+        LogImpl {
+            endpoint,
+            label
+        }
+    }
+}
+
+#[async_trait]
+impl<E: Endpoint> Endpoint for LogImpl<E> {
+    type Output = Response;
+
+    async fn call(&self, req: Request) -> Self::Output {
+        let label = self.label.clone();
+        let path = req.uri().path();
+
+        println!("{label} => request: {path}");
+
+        let resp = self.endpoint.call(req).await.into_response();
+
+        if resp.status().is_success() {
+            let status = resp.status();
+            println!("{label} => response: {status}");
+        } else {
+            let status = resp.status();
+            println!("{label} => error: {status}");
+        }
+        resp
+    }
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -137,9 +200,9 @@ async fn main() -> Result<(), std::io::Error> {
     Server::new(TcpListener::bind("127.0.0.1:3000"))
         .run(Route::new()
             .nest("/spec1.json", spec1) //spec_endpoint("/api1", &spec1))
-            .nest_no_strip("/api1", api_service1)
+            .nest_no_strip("/api1", api_service1.with(Log::new("łotr jeden")))
             .nest("/spec2.json", spec2) //spec_endpoint("/api2", &spec2))
-            .nest_no_strip("/api2", api_service2)
+            .nest_no_strip("/api2", api_service2.with(Log::new("rozkaz rozkaz")))
 
             .nest(
                 "/static1",
