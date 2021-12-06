@@ -15,7 +15,7 @@ use poem::{http::Method, middleware::Cors};
 #[derive(Object, Debug, PartialEq)]
 struct A {
     v1: i32,
-    v2: String,
+    v2: Arc<String>,
 }
 
 #[derive(Object, Debug, PartialEq)]
