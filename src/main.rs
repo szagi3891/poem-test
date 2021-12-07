@@ -19,10 +19,19 @@ struct A {
     v2: Arc<String>,
 }
 
+
+#[derive(Clone, Debug, PartialEq, Object)]
+pub struct SportModel {
+    pub id: Arc<String>,
+    pub name: Arc<String>,
+    pub displayOrder: u64
+}
+
 #[derive(Object, Debug, PartialEq)]
 struct B {
     v3: f32,
     list: HashMap<String, u64>,
+    sport: Option<Arc<SportModel>>,
 }
 
 #[derive(OneOf, Debug, PartialEq)]

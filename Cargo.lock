@@ -816,9 +816,9 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "poem"
-version = "1.0.37"
+version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3f4635e5244e22ad91045b1b07cf0a7953caf7ffee08fdc1c116bf048f8c99f"
+checksum = "7d5268e20f10bab1b12f2b1bd9aa8263b4418210d4ca1cc49d930f07572c9f49"
 dependencies = [
  "async-trait",
  "bytes 1.1.0",
@@ -863,9 +863,9 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi"
-version = "1.0.37"
+version = "1.0.39"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "029480739e39df82b7a8c875d90aa96a62884001c5c77a9f120464a887fa74a8"
+checksum = "a4ed9ec5a3a1a0c95d1eeffd45b00df084910ca0f390fe3b2cc02d7fbe499850"
 dependencies = [
  "base64 0.13.0",
  "derive_more",
@@ -883,9 +883,9 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi-derive"
-version = "1.0.37"
+version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53f9955c907eb3b40d83b41899974ad0190e31bea7ca8e3a028ea7eae82e839c"
+checksum = "879b894bee3093fcb294ccc49288f3d02139422bd764eb92a77933484bfdd24c"
 dependencies = [
  "Inflector",
  "darling",
