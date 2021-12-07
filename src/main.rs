@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use poem::{listener::TcpListener, Route, Server};
-use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService};
+use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService, Enum};
 use poem_openapi::ApiResponse;
 use poem::{endpoint::Files};
 
@@ -19,12 +19,18 @@ struct A {
     v2: Arc<String>,
 }
 
+#[derive(Clone, Debug, PartialEq, Enum)]
+enum GeoRuleType {
+    DENY,
+    ALLOW,
+}
 
 #[derive(Clone, Debug, PartialEq, Object)]
 pub struct SportModel {
     pub id: Arc<String>,
     pub name: Arc<String>,
-    pub displayOrder: u64
+    pub display_order: u64,
+    geo_rule_type: GeoRuleType,
 }
 
 #[derive(Object, Debug, PartialEq)]
