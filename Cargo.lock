@@ -863,9 +863,9 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi"
-version = "1.0.41"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "575b6b66afbf528088e03a59a3aa5cc37898487c5d1ed0079872864a96e9e63a"
+checksum = "4d1732971f5b3e54ff30adc5bad9b6678da4e1008c7e33857cd1617d993de9e3"
 dependencies = [
  "base64 0.13.0",
  "derive_more",
@@ -883,9 +883,9 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi-derive"
-version = "1.0.38"
+version = "1.0.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "879b894bee3093fcb294ccc49288f3d02139422bd764eb92a77933484bfdd24c"
+checksum = "fb35abe531b0b08efb14ea2f4a750c5878bd31b6001087a6524fc286d609fe54"
 dependencies = [
  "Inflector",
  "darling",
