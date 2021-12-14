@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use poem::{listener::TcpListener, Route, Server};
+use poem_openapi::payload::PlainText;
 use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService, Enum};
 use poem_openapi::ApiResponse;
 use poem::{endpoint::Files};
@@ -33,6 +34,7 @@ pub struct SportModel {
     geo_rule_type: GeoRuleType,
 }
 
+
 #[derive(Object, Debug, PartialEq)]
 struct B {
     v3: f32,
@@ -46,7 +48,6 @@ enum MyObj {
     A(A),
     B(B),
 }
-
 
 #[derive(Object, Debug, PartialEq)]
 struct Forb {
@@ -121,10 +122,7 @@ impl Api2 {
 #[OpenApi(prefix_path = "/api2")]
 impl Api2 {
     #[oai(path = "/hello", method = "get")]
-    async fn create_post(
-        &self,
-        obj: Json<MyObj>,
-    ) -> CreateBlogResponse {
+    async fn create_post(&self, obj: Json<MyObj>) -> CreateBlogResponse {
         CreateBlogResponse::Forbidden(Json(Forb {
             message: "dsadsa".into(),
             age: 4,
@@ -134,6 +132,16 @@ impl Api2 {
     #[oai(path = "/put2", method = "post")]
     async fn index2(&self, obj: Json<MyObj>) -> Json<MyObj> {
         obj
+    }
+
+    #[oai(method = "get", path = "/fun1")]
+    async fn fun1(&self) -> PlainText<String> {
+        PlainText("response from fun1".into())
+    }
+
+    #[oai(method = "get", path = "/fun1")]
+    async fn fun2(&self) -> PlainText<String> {
+        PlainText("response from fun2".into())
     }
 }
 
@@ -204,6 +212,40 @@ fn cors() -> Cors {
         .allow_credentials(false)
     ;
     cors
+}
+
+#[derive(Clone, Debug, PartialEq, Enum)]
+#[oai(rename_all="PascalCase")]
+enum SelectionDisplayType {
+    Column,
+    Row,
+    TwoColumns,
+    ThreeColumns,
+    CorrectScore
+}
+
+#[derive(Clone, Debug, PartialEq, Object)]
+struct RabViewDetailsModel {
+    displayOrder: u64,
+    selectionDisplayType: SelectionDisplayType,
+    active: bool,
+}
+
+#[test]
+fn decode_enum() {
+    let data = r#"{"displayOrder":2,"active":true,"selectionDisplayType":"CorrectScore"}"#;
+
+    let aa = serde_json::from_str::<RabViewDetailsModel>(&data);
+    println!("ddd {aa:#?}");
+
+    let g = RabViewDetailsModel {
+        displayOrder: 33,
+        selectionDisplayType: SelectionDisplayType::CorrectScore,
+        active: true
+    };
+
+    let hh = serde_json::to_string(&g);
+    println!("hh {hh:#?}");
 }
 
 #[tokio::main]
