@@ -185,13 +185,14 @@ impl<E> LogImpl<E> {
 impl<E: Endpoint> Endpoint for LogImpl<E> {
     type Output = Response;
 
-    async fn call(&self, req: Request) -> Self::Output {
+    async fn call(&self, req: Request) -> Result<Self::Output, poem::Error> {
         let label = self.label.clone();
         let path = req.uri().path();
 
         println!("{label} => request: {path}");
 
-        let resp = self.endpoint.call(req).await.into_response();
+        let resp = self.endpoint.call(req).await?;
+        let resp = resp.into_response();
 
         if resp.status().is_success() {
             let status = resp.status();
@@ -200,7 +201,7 @@ impl<E: Endpoint> Endpoint for LogImpl<E> {
             let status = resp.status();
             println!("{label} => error: {status}");
         }
-        resp
+        Ok(resp)
     }
 }
 
