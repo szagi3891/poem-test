@@ -5,8 +5,8 @@ edition = "2021"
 publish = false
 
 [dependencies]
-poem = "1.2.6"
-poem-openapi = "1.2.6"
+poem = "1.2.7"
+poem-openapi = "1.2.7"
 tokio = { version = "1.14.0", features = ["sync", "macros", "rt-multi-thread"] }
 tracing-subscriber = "0.2.24"
 serde = { version = "1.0.130", features = ["derive", "rc"] }

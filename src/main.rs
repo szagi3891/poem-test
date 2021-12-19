@@ -139,7 +139,7 @@ impl Api2 {
         PlainText("response from fun1".into())
     }
 
-    #[oai(method = "get", path = "/fun1")]
+    #[oai(method = "get", path = "/fun2")]
     async fn fun2(&self) -> PlainText<String> {
         PlainText("response from fun2".into())
     }
