@@ -266,6 +266,7 @@ struct RabViewDetailsModel {
 
 
 #[derive(Debug, Object)]
+#[oai(inline)]
 pub struct ProxyResponseOk<R: Send + ToJSON + ParseFromJSON> {
     pub response: R
 }
@@ -284,6 +285,7 @@ pub struct ProxyResponseUnknown {
 
 #[derive(Debug, Union)]
 #[oai(discriminator_name="type")]
+#[oai(inline)]
 pub enum ProxyResponse<R: Send + ToJSON + ParseFromJSON> {
     Ok(ProxyResponseOk<R>),
     Error(ProxyResponseMessage),
