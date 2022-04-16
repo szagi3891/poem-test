@@ -3,9 +3,10 @@ use std::sync::Arc;
 
 use poem::{listener::TcpListener, Route, Server};
 use poem_openapi::payload::PlainText;
-use poem_openapi::{payload::Json, Object, OneOf, OpenApi, OpenApiService, Enum};
-use poem_openapi::ApiResponse;
-use poem::{endpoint::Files};
+use poem_openapi::types::{ToJSON, ParseFromJSON};
+use poem_openapi::{payload::Json, Object, OpenApi, OpenApiService, Enum};
+use poem_openapi::{ApiResponse, Union};
+use poem::{endpoint::StaticFilesEndpoint};
 
 use poem::{
     async_trait, Endpoint, EndpointExt, IntoResponse,
@@ -42,8 +43,8 @@ struct B {
     sport: Option<Arc<SportModel>>,
 }
 
-#[derive(OneOf, Debug, PartialEq)]
-#[oai(property_name = "type")]
+#[derive(Union, Debug, PartialEq)]
+#[oai(discriminator_name = "type")]
 enum MyObj {
     A(A),
     B(B),
@@ -63,7 +64,7 @@ enum CreateBlogResponse {
     
     /// Permission denied
     #[oai(status = 403)]
-    Forbidden(Json<Forb>),
+    Forbidden(Json<Option<Forb>>),
   
     /// Internal error
     #[oai(status = 500)]
@@ -123,10 +124,10 @@ impl Api2 {
 impl Api2 {
     #[oai(path = "/hello", method = "get")]
     async fn create_post(&self, obj: Json<MyObj>) -> CreateBlogResponse {
-        CreateBlogResponse::Forbidden(Json(Forb {
+        CreateBlogResponse::Forbidden(Json(Some(Forb {
             message: "dsadsa".into(),
             age: 4,
-        }))
+        })))
     }
 
     #[oai(path = "/put2", method = "post")]
@@ -143,6 +144,20 @@ impl Api2 {
     async fn fun2(&self) -> PlainText<String> {
         PlainText("response from fun2".into())
     }
+
+    #[oai(method= "get", path = "/fun3")]
+    async fn fun3(&self) -> Json<ProxyResponse<String>> {
+        // PlainText("response from fun2".into())
+        todo!()
+    }
+    //ProxyResponse
+
+    #[oai(method= "get", path = "/fun4")]
+    async fn fun4(&self) -> Json<ProxyResponse<u32>> {
+        // PlainText("response from fun2".into())
+        todo!()
+    }
+    //ProxyResponse
 }
 
 
@@ -232,22 +247,49 @@ struct RabViewDetailsModel {
     active: bool,
 }
 
-#[test]
-fn decode_enum() {
-    let data = r#"{"displayOrder":2,"active":true,"selectionDisplayType":"CorrectScore"}"#;
+// #[test]
+// fn decode_enum() {
+//     let data = r#"{"displayOrder":2,"active":true,"selectionDisplayType":"CorrectScore"}"#;
 
-    let aa = serde_json::from_str::<RabViewDetailsModel>(&data);
-    println!("ddd {aa:#?}");
+//     let aa = serde_json::from_str::<RabViewDetailsModel>(&data);
+//     println!("ddd {aa:#?}");
 
-    let g = RabViewDetailsModel {
-        displayOrder: 33,
-        selectionDisplayType: SelectionDisplayType::CorrectScore,
-        active: true
-    };
+//     let g = RabViewDetailsModel {
+//         displayOrder: 33,
+//         selectionDisplayType: SelectionDisplayType::CorrectScore,
+//         active: true
+//     };
 
-    let hh = serde_json::to_string(&g);
-    println!("hh {hh:#?}");
+//     let hh = serde_json::to_string(&g);
+//     println!("hh {hh:#?}");
+// }
+
+
+#[derive(Debug, Object)]
+pub struct ProxyResponseOk<R: Send + ToJSON + ParseFromJSON> {
+    pub response: R
 }
+
+#[derive(Debug, Object)]
+pub struct ProxyResponseMessage {
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Debug, Object)]
+pub struct ProxyResponseUnknown {
+    pub code: u32,
+    pub body: String,
+}
+
+#[derive(Debug, Union)]
+#[oai(discriminator_name="type")]
+pub enum ProxyResponse<R: Send + ToJSON + ParseFromJSON> {
+    Ok(ProxyResponseOk<R>),
+    Error(ProxyResponseMessage),
+    Unknown(ProxyResponseUnknown),
+}
+
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
@@ -285,12 +327,12 @@ async fn main() -> Result<(), std::io::Error> {
 
             .nest(
                 "/static1",
-                Files::new("./src").show_files_listing(),
+                StaticFilesEndpoint::new("./src").show_files_listing(),
             )
 
             .nest(
                 "/static2",
-                Files::new("./src"),
+                StaticFilesEndpoint::new("./src"),
             )
 
         )
