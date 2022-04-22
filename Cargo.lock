@@ -747,9 +747,8 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "poem"
-version = "1.3.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e305a07674fff54e46e36e134da674b1758018a598579daf49eba2a68c87993f"
+version = "1.3.29"
+source = "git+https://github.com/poem-web/poem?branch=rework-openapi-union#09ed17cc1cf28a7773b75aa3e0acb30320221216"
 dependencies = [
  "async-trait",
  "bytes",
@@ -783,9 +782,8 @@ dependencies = [
 
 [[package]]
 name = "poem-derive"
-version = "1.3.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8cf3c94ab1044716e8510dc75a2adb64e4dec27b593435caa4198a90e4acfe1"
+version = "1.3.29"
+source = "git+https://github.com/poem-web/poem?branch=rework-openapi-union#09ed17cc1cf28a7773b75aa3e0acb30320221216"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -795,9 +793,8 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi"
-version = "1.3.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a91f3f06dd9d66fa4a363fcd07ce9c9a91199986fe6a95bb866f1b25b2d9d836"
+version = "1.3.29"
+source = "git+https://github.com/poem-web/poem?branch=rework-openapi-union#09ed17cc1cf28a7773b75aa3e0acb30320221216"
 dependencies = [
  "base64",
  "bytes",
@@ -817,9 +814,8 @@ dependencies = [
 
 [[package]]
 name = "poem-openapi-derive"
-version = "1.3.28"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d4153457ac753b14a0240c5b22d5a937da7ae8cf3664f69dac9c4d1e1a005d6"
+version = "1.3.29"
+source = "git+https://github.com/poem-web/poem?branch=rework-openapi-union#09ed17cc1cf28a7773b75aa3e0acb30320221216"
 dependencies = [
  "Inflector",
  "darling",
