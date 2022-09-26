@@ -28,8 +28,11 @@ enum GeoRuleType {
 }
 
 #[derive(Clone, Debug, PartialEq, Object)]
+struct SportId(String);
+
+#[derive(Clone, Debug, PartialEq, Object)]
 pub struct SportModel {
-    pub id: Arc<String>,
+    pub id: SportId,
     pub name: Arc<String>,
     pub display_order: u64,
     geo_rule_type: GeoRuleType,
